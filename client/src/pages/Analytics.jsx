@@ -7,13 +7,38 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 export default function Analytics() {
   const [dashboard, setDashboard] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/analytics/dashboard').then((res) => setDashboard(res.data));
+    const fetchAnalytics = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get('/analytics/dashboard');
+        setDashboard(res.data);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to load analytics:', err);
+        setError(err.message || 'Failed to load analytics');
+        setDashboard(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnalytics();
   }, []);
 
-  if (!dashboard) {
-    return <div className="rounded-3xl bg-white p-8 shadow-xl">Loading analytics…</div>;
+  if (error) {
+    return (
+      <div className="rounded-3xl bg-white p-8 shadow-xl border-l-4 border-rose-500">
+        <p className="text-sm font-semibold text-rose-600">Error Loading Analytics</p>
+        <p className="text-slate-600 mt-2">Unable to load analytics data. Please check your connection and try refreshing the page.</p>
+      </div>
+    );
+  }
+
+  if (loading || !dashboard) {
+    return <div className="rounded-3xl bg-white p-8 shadow-xl text-slate-500">Loading analytics…</div>;
   }
 
   return (

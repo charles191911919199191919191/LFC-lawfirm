@@ -16,9 +16,10 @@ import NotFound from './pages/NotFound';
 
 export default function App() {
   const user = useAuthStore((state) => state.user);
+  const basePath = import.meta.env.PROD ? '/LFC-lawfirm' : '';
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basePath}>
       <div className="min-h-screen bg-slate-50 text-slate-900">
         <Toaster position="top-right" />
         <Routes>

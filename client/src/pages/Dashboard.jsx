@@ -16,13 +16,38 @@ function StatCard({ label, value, accent }) {
 
 export default function Dashboard() {
   const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/analytics/dashboard').then((res) => setData(res.data));
+    const fetchDashboard = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get('/analytics/dashboard');
+        setData(res.data);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to load dashboard:', err);
+        setError(err.message || 'Failed to load dashboard');
+        setData(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboard();
   }, []);
 
-  if (!data) {
-    return <div className="rounded-3xl bg-white p-8 shadow-xl">Loading dashboard…</div>;
+  if (error) {
+    return (
+      <div className="rounded-3xl bg-white p-8 shadow-xl border-l-4 border-rose-500">
+        <p className="text-sm font-semibold text-rose-600">Error Loading Dashboard</p>
+        <p className="text-slate-600 mt-2">Unable to load dashboard data. Please check your connection and try refreshing the page.</p>
+      </div>
+    );
+  }
+
+  if (loading || !data) {
+    return <div className="rounded-3xl bg-white p-8 shadow-xl text-slate-500">Loading dashboard…</div>;
   }
 
   return (
