@@ -7,6 +7,7 @@
     "dev:client": "vite",
     "dev:server": "nodemon server/index.js",
     "build": "vite build",
+    "postbuild": "cp -f dist/index.html dist/404.html && touch dist/.nojekyll",
     "start": "node server/index.js",
     "seed": "node prisma/seed.js"
   },
