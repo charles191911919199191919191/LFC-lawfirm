@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -9,12 +10,25 @@ const userRoutes = require('./routes/users');
 const settingsRoutes = require('./routes/settings');
 const prisma = require('./config/prisma');
 
-dotenv.config();
-const app = express();
-const PORT = process.env.PORT || 4000;
+const envPath = path.resolve(__dirname, '../.env');
+dotenv.config({ path: envPath });
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+const app = express();
+const PORT = Number(process.env.PORT || 4000);
+
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+
+const requiredEnv = ['DATABASE_URL', 'JWT_SECRET'];
+requiredEnv.forEach((key) => {
+  if (!process.env[key]) {
+    console.error(`Missing required environment variable: ${key}`);
+    process.exit(1);
+  }
+});
+
+app.use(cors({ origin: CLIENT_URL }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 app.use('/api/auth', authRoutes);
